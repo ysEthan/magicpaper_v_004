@@ -117,15 +117,13 @@
             <table class="table table-vcenter card-table">
                 <thead>
                     <tr>
-                        <th>图片</th>
-                        <th>SKU编码</th>
-                        <th>SKU名称</th>
-                        <th>所属SPU</th>
-                        <th>所属类目</th>
-                        <th>供应商</th>
-                        <th>状态</th>
-                        <th>创建时间</th>
-                        <th class="w-1"></th>
+                        <th style="width: 50px">图片</th>
+                        <th style="width: 160px">SKU信息</th>
+                        <th style="width: 200px">SPU信息</th>
+                        <th style="width: 100px">供应商</th>
+                        <th style="width: 70px">状态</th>
+                        <th style="width: 110px">创建时间</th>
+                        <th style="width: 120px"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -142,10 +140,18 @@
                                 <span class="avatar avatar-lg rounded">无</span>
                             {% endif %}
                         </td>
-                        <td>{{ sku.sku_code }}</td>
-                        <td>{{ sku.sku_name }}</td>
-                        <td>{{ sku.spu.spu_name }}</td>
-                        <td>{{ sku.spu.category.full_name }}</td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <div class="text-dark">{{ sku.sku_code }}</div>
+                                <div class="text-muted">{{ sku.sku_name }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <div class="text-dark">{{ sku.spu.spu_code }}</div>
+                                <div class="text-muted">{{ sku.spu.spu_name }} (category: {{ sku.spu.category.category_name_en }})</div>
+                            </div>
+                        </td>
                         <td>{{ sku.provider_name }}</td>
                         <td>
                             {% if sku.status %}
@@ -168,7 +174,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="9" class="text-center">暂无数据</td>
+                        <td colspan="8" class="text-center">暂无数据</td>
                     </tr>
                     {% endfor %}
                 </tbody>
