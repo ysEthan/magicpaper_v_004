@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh">
 
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>Dashboard - Tabler - Premium and Open Source dashboard template with responsive and high quality UI.</title>
+    <title>{% block title %}Magic Paper{% endblock %}</title>
     <!-- CSS files -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{% static 'css/tabler-payments.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/tabler-vendors.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/demo.min.css' %}">
+    {% block extra_css %}{% endblock %}
 
     <style>
         @import url('https://rsms.me/inter/inter.css');
@@ -59,16 +60,17 @@
 
 <!-- Libs JS -->
 
-<script src="{% static 'libs/apexcharts/dist/apexcharts.min.js' %}"></script>
+<script src="{% static 'libs/apexcharts/dist/apexcharts.min.js' %}" defer></script>
 <script src="{% static 'libs/jsvectormap/dist/js/jsvectormap.min.js' %}"></script>
 <script src="{% static 'libs/jsvectormap/dist/maps/world.js' %}"></script>
 <script src="{% static 'libs/jsvectormap/dist/maps/world-merc.js' %}"></script>
 <!-- Tabler Core -->
-<script src="{% static 'js/tabler.min.js' %}"></script>
-<script src="{% static 'js/demo.min.js' %}"></script>
+<script src="{% static 'js/tabler.min.js' %}" defer></script>
+<script src="{% static 'js/demo.min.js' %}" defer></script>
 
 
 {% include 'layouts/demo_data.html' %}
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>

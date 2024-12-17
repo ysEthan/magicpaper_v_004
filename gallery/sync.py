@@ -112,10 +112,15 @@ class ProductSync:
                 ext = image_url.split('.')[-1].lower()
                 if ext not in ['jpg', 'jpeg', 'png', 'gif']:
                     ext = 'jpg'
-                filename = f"skus/{sku_code}_{int(time.time())}.{ext}"
+                filename = f"skus/{sku_code}.{ext}"  # 移除时间戳，使用固定文件名
                 
                 try:
-                    # 保存图片
+                    # 删除旧图片
+                    storage = default_storage
+                    if storage.exists(filename):
+                        storage.delete(filename)
+                    
+                    # 保存新图片
                     path = default_storage.save(filename, ContentFile(response.content))
                     print(f"图片保存成功: {path}")
                     return path
