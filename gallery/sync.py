@@ -79,10 +79,10 @@ class ProductSync:
             synced_count = self._process_products(data['data'])
 
             # 如果还有下一页，递归处理
-            if current_page < max_page:
+            if current_page < max_page and current_page <8 :
                 time.sleep(1)  # 避免请求过快
-                # next_count = self.sync_products(start_time, end_time, page + 1)
-                # synced_count += next_count
+                next_count = self.sync_products(start_time, end_time, page + 1)
+                synced_count += next_count
 
             return synced_count
 

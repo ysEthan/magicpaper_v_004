@@ -94,7 +94,17 @@
     <div class="card mb-3">
         <div class="card-body">
             <form method="get" class="row g-3">
-                <div class="col-12">
+                <div class="col-md-3">
+                    <select class="form-select" name="category">
+                        <option value="">所有类目</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>
+                                {{ category.category_name_en }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-9">
                     <div class="input-group">
                         <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="搜索SKU...">
                         <button class="btn btn-primary" type="submit">

@@ -135,6 +135,15 @@ class SKUListView(LoginRequiredMixin, ListView):
     
     def get_queryset(self):
         queryset = SKU.objects.select_related('spu', 'spu__category').all()
+        
+        # 添加类目筛选
+        category_id = self.request.GET.get('category')
+        if category_id:
+            try:
+                queryset = queryset.filter(spu__category_id=category_id)
+            except ValueError:
+                pass
+
         # 添加搜索功能
         search_query = self.request.GET.get('search', '')
         if search_query:
@@ -148,6 +157,15 @@ class SKUListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_query'] = self.request.GET.get('search', '')
+        # 添加类目列表到上下文，只包含已有 SKU 的类目
+        context['categories'] = Category.objects.filter(
+            spus__skus__isnull=False  # 通过 SPU 和 SKU 的关联关系筛选
+        ).distinct().order_by('category_name_en')
+        # 添加当前选中的类目ID
+        try:
+            context['category_id'] = int(self.request.GET.get('category', ''))
+        except (ValueError, TypeError):
+            context['category_id'] = None
         return context
 
 class SKUUpdateView(LoginRequiredMixin, UpdateView):
