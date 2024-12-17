@@ -29,7 +29,7 @@
                 <div id="login-wrapper">
                     <header>
                         <div class="brand">
-                            <a href="{% url 'home' %}" class="logo">
+                            <a href="/" class="logo">
                                 <i class="icon-layers"></i>
                                 <span>Muggle </span>add new member</a>
                         </div>
@@ -41,69 +41,23 @@
                         </h3>  
                     </div>
                     <div class="panel-body">
-                        
-
-
-                        <form role="form" action="{% url 'register' %}" method="post">
+                        <form role="form" method="post">
                         {% csrf_token %}
-
-
-
-                            {% with error=form_obj.username.errors.0 %}
-                            <div class="form-group {% if error %}has-error{%endif%} ">
-                                <label for="exampleInputEmail1">Name</label>
-                                <input class="form-control " value="{{ values.username }}" name="username" placeholder="Enter your name">
-                                {% if error %}
-                                        <div class="alert-danger"><strong>Oh snap!</strong>{{ error }}.</div>
-                                {%endif%}
+                            {% for field in form %}
+                            <div class="form-group">
+                                <label>{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="alert alert-danger">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
                             </div>
-                            {% endwith %}
-
-
-                            {% with error=form_obj.email.errors.0 %}
-                            <div class="form-group {% if error %}has-error{%endif%} ">
-                                <label for="exampleInputEmail1">Email</label>
-                                <input class="form-control " value="{{ values.email }}" name="email" placeholder="email">
-                                {% if error %}
-                                    <div class="alert-danger"><strong>Oh snap!</strong>{{ error }}.</div>
-                                {%endif%}
-                            </div>
-                            {% endwith %}
-
-
-
-
-                            {% with error=form_obj.password.errors.0 %}
-                            <div class="form-group {% if error %}has-error{%endif%} ">
-                                <label for="exampleInputPassword1">Password</label>
-                                <input type="password" class="form-control " name="password" placeholder="Password">
-                                {% if error %}
-                                    <div class="alert-danger"><strong>Oh snap!</strong>{{ error }}.</div>
-                                {%endif%}
-                            </div>
-                            {% endwith %}
-
-
-                            {% with error=form_obj.re_password.errors.0 %}
-                            <div class="form-group {% if error %}has-error{%endif%} ">
-                                <label for="exampleInputPassword1">Retype Password</label>
-                                <input type="password" class="form-control " name="re_password" placeholder="Retype your password">
-                                {% if error %}
-                                    <div class="alert-danger"><strong>Oh snap!</strong>{{ error }}.</div>
-                                {%endif%}
-                            </div>
-                            {% endwith %}
-
-                            
+                            {% endfor %}
                             <div>
-                                <button type="submit" class="btn btn-primary btn-block"> Sign Up</button>
-                                <!-- <a href="index.html" class="btn btn-primary btn-block">Sign Up</a> -->
-
+                                <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
                             </div>
-                           
-
                         </form>
-
                     </div>
                 </div>
                 </div>
