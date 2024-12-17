@@ -80,6 +80,9 @@
                                 <a href="{% url 'gallery:spu_edit' spu.id %}" class="btn btn-white btn-sm">
                                     编辑
                                 </a>
+                                <a href="{% url 'gallery:sku_add' %}?spu={{ spu.id }}" class="btn btn-primary btn-sm">
+                                    新增SKU
+                                </a>
                                 <a href="{% url 'gallery:spu_delete' spu.id %}" class="btn btn-danger btn-sm">
                                     删除
                                 </a>

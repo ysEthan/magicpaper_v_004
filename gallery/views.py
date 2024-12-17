@@ -4,8 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import redirect
-from .models import Category, SPU
-from .forms import CategoryForm, SPUForm
+from .models import Category, SPU, SKU
+from .forms import CategoryForm, SPUForm, SKUForm
+from django.views import View
+from .sync import ProductSync
 
 # Create your views here.
 
@@ -124,3 +126,97 @@ class SPUUpdateView(LoginRequiredMixin, UpdateView):
     def form_invalid(self, form):
         messages.error(self.request, 'SPU更新失败，请检查输入！')
         return super().form_invalid(form)
+
+class SKUListView(LoginRequiredMixin, ListView):
+    model = SKU
+    template_name = 'gallery/sku_list.html'
+    context_object_name = 'skus'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        queryset = SKU.objects.select_related('spu', 'spu__category').all()
+        # 添加搜索功能
+        search_query = self.request.GET.get('search', '')
+        if search_query:
+            queryset = queryset.filter(
+                sku_name__icontains=search_query
+            ) | queryset.filter(
+                sku_code__icontains=search_query
+            )
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
+
+class SKUUpdateView(LoginRequiredMixin, UpdateView):
+    model = SKU
+    form_class = SKUForm
+    template_name = 'gallery/sku_form.html'
+    success_url = reverse_lazy('gallery:sku_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'SKU更新成功！')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'SKU更新失败，请检查输入！')
+        return super().form_invalid(form)
+
+class SKUDeleteView(LoginRequiredMixin, DeleteView):
+    model = SKU
+    success_url = reverse_lazy('gallery:sku_list')
+    template_name = 'gallery/sku_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            result = super().delete(request, *args, **kwargs)
+            messages.success(request, 'SKU删除成功！')
+            return result
+        except Exception as e:
+            messages.error(request, f'删除失败：{str(e)}')
+            return redirect('gallery:sku_list')
+
+class SKUCreateView(LoginRequiredMixin, CreateView):
+    model = SKU
+    form_class = SKUForm
+    template_name = 'gallery/sku_form.html'
+    success_url = reverse_lazy('gallery:sku_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        spu_id = request.GET.get('spu')
+        if not spu_id:
+            messages.error(request, '请从SPU详情页添加SKU')
+            return redirect('gallery:spu_list')
+        try:
+            self.spu = SPU.objects.get(id=spu_id)
+        except SPU.DoesNotExist:
+            messages.error(request, 'SPU不存在！')
+            return redirect('gallery:spu_list')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.spu = self.spu
+        messages.success(self.request, 'SKU创建成功！')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'SKU创建失败，请检查输入！')
+        return super().form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['spu'] = self.spu
+        return context
+
+class SKUSyncView(LoginRequiredMixin, View):
+    def get(self, request):
+        try:
+            sync = ProductSync()
+            count = sync.sync_products()
+            sync.clean_old_images()  # 清理旧图片
+            messages.success(request, f'成功同步 {count} 条数据')
+        except Exception as e:
+            messages.error(request, f'同步失败：{str(e)}')
+        return redirect('gallery:sku_list')

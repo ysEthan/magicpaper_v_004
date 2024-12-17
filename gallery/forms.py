@@ -1,5 +1,5 @@
 from django import forms
-from .models import Category, SPU
+from .models import Category, SPU, SKU
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -71,3 +71,66 @@ class SPUForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             return self.instance.spu_code
         return code
+
+class SKUForm(forms.ModelForm):
+    class Meta:
+        model = SKU
+        fields = ['sku_code', 'sku_name', 'provider_name', 
+                 'plating_process', 'color', 'material', 
+                 'length', 'width', 'height', 
+                 'weight', 'status']
+        widgets = {
+            'plating_process': forms.Select(attrs={
+                'class': 'form-select'
+            }, choices=[('', '---------')] + list(SKU.PLATING_PROCESS_CHOICES)),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 添加 Bootstrap 类
+        for field in self.fields.values():
+            if not isinstance(field.widget, (forms.CheckboxInput, forms.RadioSelect)):
+                field.widget.attrs['class'] = 'form-control'
+
+        # 设置非必填字段
+        self.fields['provider_name'].required = False
+        self.fields['plating_process'].required = False
+        self.fields['color'].required = False
+        self.fields['material'].required = False
+        
+        # 清空默认值
+        if not self.instance.pk:  # 只在新建时清空
+            self.fields['plating_process'].initial = ''
+
+        # 如果是编辑模式，SKU编码不可修改
+        if self.instance and self.instance.pk:
+            self.fields['sku_code'].widget.attrs.update({
+                'readonly': True,
+                'class': 'form-control bg-light text-muted',
+                'tabindex': '-1'
+            })
+            self.fields['sku_code'].help_text = 'SKU编码不可修改'
+
+    def clean_sku_code(self):
+        code = self.cleaned_data['sku_code']
+        if len(code) < 4:
+            raise forms.ValidationError('SKU编码长度不能小于4个字符')
+        
+        # 如果是编辑模式，返回原始编码
+        if self.instance and self.instance.pk:
+            return self.instance.sku_code
+        return code
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # 设置默认值
+        if not cleaned_data.get('provider_name'):
+            cleaned_data['provider_name'] = '无'
+        if not cleaned_data.get('plating_process'):
+            cleaned_data['plating_process'] = 'none'
+        if not cleaned_data.get('color'):
+            cleaned_data['color'] = '无'
+        if not cleaned_data.get('material'):
+            cleaned_data['material'] = '无'
+        return cleaned_data

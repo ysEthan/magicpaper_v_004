@@ -195,106 +195,21 @@ class SKU(models.Model):
     )
 
     id = models.AutoField(primary_key=True, verbose_name='SKU ID')
-    sku_code = models.CharField(
-        max_length=50, 
-        unique=True, 
-        verbose_name='SKU编码'
-    )
-    sku_name = models.CharField(
-        max_length=200, 
-        verbose_name='SKU名称'
-    )
-    provider_name = models.CharField(
-        max_length=100, 
-        blank=True, 
-        default='无', 
-        verbose_name='供应商'
-    )
-    unit_price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
-        verbose_name='单价',
-        blank=True,
-        null=True,
-        default=0
-    )
-    weight = models.DecimalField(
-        max_digits=10,
-        decimal_places=3,
-        validators=[MinValueValidator(0)],
-        verbose_name='重量',
-        blank=True,
-        null=True,
-        default=0
-    )
-    plating_process = models.CharField(
-        max_length=20,
-        choices=PLATING_PROCESS_CHOICES,
-        default='none',
-        blank=True,
-        verbose_name='电镀工艺'
-    )
-    length = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
-        verbose_name='长度',
-        blank=True,
-        null=True,
-        default=0
-    )
-    width = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
-        verbose_name='宽度',
-        blank=True,
-        null=True,
-        default=0
-    )
-    height = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
-        verbose_name='高度',
-        blank=True,
-        null=True,
-        default=0
-    )
-    other_dimensions = models.CharField(
-        max_length=200,
-        blank=True,
-        null=True,
-        verbose_name='其他尺寸'
-    )
-    material = models.CharField(
-        max_length=100,
-        verbose_name='材质',
-        blank=True,
-        default='无'
-    )
-    img_url = models.ImageField(
-        upload_to='skus',
-        blank=True,
-        null=True,
-        verbose_name='产品图片'
-    )
-    spu = models.ForeignKey(
-        SPU,
-        on_delete=models.CASCADE,
-        related_name='skus',
-        verbose_name='所属SPU'
-    )
+    sku_code = models.CharField(max_length=32, unique=True, verbose_name='SKU编码')
+    sku_name = models.CharField(max_length=128, verbose_name='SKU名称')
+    provider_name = models.CharField(max_length=128, verbose_name='供应商名称')
+    plating_process = models.CharField(max_length=32, choices=PLATING_PROCESS_CHOICES, verbose_name='电镀工艺')
+    color = models.CharField(max_length=32, verbose_name='颜色')
+    material = models.CharField(max_length=100, default='无', verbose_name='材质')
+    length = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='长度(mm)')
+    width = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='宽度(mm)')
+    height = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='高度(mm)')
+    weight = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='重量(g)')
+    status = models.BooleanField(default=True, verbose_name='状态')
+    spu = models.ForeignKey(SPU, on_delete=models.CASCADE, related_name='skus', verbose_name='所属SPU')
+    img_url = models.CharField(max_length=255, blank=True, null=True, verbose_name='图片URL')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
-    status = models.BooleanField(default=True, verbose_name='状态')
-    color = models.CharField(
-        max_length=50,
-        blank=True,
-        default='无',
-        verbose_name='颜色'
-    )
 
     class Meta:
         db_table = 'gallery_sku'
@@ -320,25 +235,10 @@ class SKU(models.Model):
             })
 
     def save(self, *args, **kwargs):
-        self.clean()
         if not self.provider_name:
             self.provider_name = '无'
-        if self.length is None:
-            self.length = 0
-        if self.width is None:
-            self.width = 0
-        if self.height is None:
-            self.height = 0
-        if self.unit_price is None:
-            self.unit_price = 0
-        if self.weight is None:
-            self.weight = 0
         if not self.plating_process:
             self.plating_process = 'none'
-        if not self.material:
-            self.material = '无'
-        if not self.color:
-            self.color = '无'
         super().save(*args, **kwargs)
 
     @property
