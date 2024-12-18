@@ -152,6 +152,7 @@ class ProductSync:
             raise Exception("系统中没有可用的最后一级类目，请先创建类目")
         
         for product in products:
+            print(product)
             try:
                 print(f"开始处理产品: {product['specNo']}")
                 
@@ -196,9 +197,9 @@ class ProductSync:
                 sku_defaults = {
                     'sku_name': product['specName'],
                     'provider_name': product['providerNameList'][0] if product['providerNameList'] else '无',
-                    'plating_process': 'none',  # 默认无电镀
-                    'color': '无',  # 默认无颜色
-                    'material': '无',  # 默认无材质
+                    'plating_process': product['prop4'],  #
+                    'color': product['prop2'],  #
+                    'material': product['prop8'],  # 默认无材质
                     'length': float(product['length']) if product['length'] else 0,
                     'width': float(product['width']) if product['width'] else 0,
                     'height': float(product['height']) if product['height'] else 0,

@@ -3,58 +3,42 @@
 
 {% block extra_css %}
 <style>
-.image-preview {
+.hover-zoom-container {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10000;
     display: none;
-    max-width: 90vw;
-    max-height: 90vh;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    border-radius: 8px;
-}
-
-.preview-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
     z-index: 9999;
-    display: none;
-}
-
-.avatar.avatar-lg {
-    cursor: zoom-in;
-    transition: all 0.1s ease;
-    position: relative;
-    z-index: 1;
+    width: 240px;
+    height: 240px;
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    border-radius: 4px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 }
 
-.avatar.avatar-lg:hover {
-    transform: scale(5);
-    z-index: 9000;
-    box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    border-radius: 4px;
-    position: relative;
-    background-color: white;
+.avatar.avatar-lg {
+    cursor: zoom-in;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     width: 48px;
     height: 48px;
 }
 
 .table-responsive {
-    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
 }
 
 .table td {
     overflow: visible !important;
     position: relative;
+}
+
+.table td:first-child {
+    min-width: 60px;
+    padding-right: 30px;
 }
 </style>
 {% endblock %}
@@ -93,10 +77,10 @@
     <!-- Search form -->
     <div class="card mb-3">
         <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-3">
-                    <select class="form-select" name="category">
-                        <option value="">所有类目</option>
+            <form method="get" class="row g-3" id="searchForm">
+                <div class="col-md-1">
+                    <select class="form-select" name="category" onchange="this.form.submit()">
+                        <option value="">-- 按类目筛选 --</option>
                         {% for category in categories %}
                             <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>
                                 {{ category.category_name_en }}
@@ -104,7 +88,37 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-9">
+                <div class="col-md-1">
+                    <select class="form-select" name="color" onchange="this.form.submit()">
+                        <option value="">-- 按颜色筛选 --</option>
+                        {% for color in colors %}
+                            <option value="{{ color }}" {% if selected_color == color %}selected{% endif %}>
+                                {% if color %}{{ color }}{% else %}-- 按颜色筛选 --{% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <select class="form-select" name="material" onchange="this.form.submit()">
+                        <option value="">-- 按材质筛选 --</option>
+                        {% for material in materials %}
+                            <option value="{{ material }}" {% if selected_material == material %}selected{% endif %}>
+                                {% if material %}{{ material }}{% else %}-- 按材质筛选 --{% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <select class="form-select" name="plating" onchange="this.form.submit()">
+                        <option value="">-- 按电镀筛选 --</option>
+                        {% for plating in platings %}
+                            <option value="{{ plating }}" {% if selected_plating == plating %}selected{% endif %}>
+                                {% if plating %}{{ plating }}{% else %}-- 按电镀筛选 --{% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
                     <div class="input-group">
                         <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="搜索SKU...">
                         <button class="btn btn-primary" type="submit">
@@ -117,6 +131,7 @@
                         </button>
                     </div>
                 </div>
+                <div class="col-md-6"><!-- 空白占位 --></div>
             </form>
         </div>
     </div>
@@ -130,6 +145,8 @@
                         <th style="width: 50px">图片</th>
                         <th style="width: 160px">SKU信息</th>
                         <th style="width: 200px">SPU信息</th>
+                        <th style="width: 140px">SKU属性</th>
+                        <th style="width: 140px">规格尺寸</th>
                         <th style="width: 100px">供应商</th>
                         <th style="width: 70px">状态</th>
                         <th style="width: 110px">创建时间</th>
@@ -162,6 +179,18 @@
                                 <div class="text-muted">{{ sku.spu.spu_name }} (category: {{ sku.spu.category.category_name_en }})</div>
                             </div>
                         </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <div class="text-dark">{{ sku.color }}</div>
+                                <div class="text-muted">{{ sku.plating_process }} / {{ sku.material }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <div class="text-dark">{{ sku.length }}×{{ sku.width }}×{{ sku.height }}mm</div>
+                                <div class="text-muted">重量: {{ sku.weight }}g</div>
+                            </div>
+                        </td>
                         <td>{{ sku.provider_name }}</td>
                         <td>
                             {% if sku.status %}
@@ -184,7 +213,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="text-center">暂无数据</td>
+                        <td colspan="9" class="text-center">暂无数据</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -222,7 +251,11 @@
                     {% if page_obj.number == num %}
                     <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_color %}&color={{ selected_color }}{% endif %}{% if selected_material %}&material={{ selected_material }}{% endif %}{% if selected_plating %}&plating={{ selected_plating }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
                     {% endif %}
                 {% endfor %}
 
@@ -251,30 +284,31 @@
     </div>
 </div>
 
-<!-- 添加预览相关的 HTML -->
-<div class="preview-overlay" onclick="hidePreview()"></div>
-<img class="image-preview" onclick="hidePreview()">
+<!-- 添加放大预览容器 -->
+<div class="hover-zoom-container"></div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function showPreview(element) {
-    const imageUrl = element.getAttribute('data-image-url');
-    const preview = document.querySelector('.image-preview');
-    const overlay = document.querySelector('.preview-overlay');
+document.addEventListener('DOMContentLoaded', function() {
+    const zoomContainer = document.querySelector('.hover-zoom-container');
     
-    preview.src = imageUrl;
-    preview.style.display = 'block';
-    overlay.style.display = 'block';
-}
-
-function hidePreview() {
-    const preview = document.querySelector('.image-preview');
-    const overlay = document.querySelector('.preview-overlay');
-    
-    preview.style.display = 'none';
-    overlay.style.display = 'none';
-}
+    document.querySelectorAll('.avatar.avatar-lg').forEach(avatar => {
+        avatar.addEventListener('mouseenter', function(e) {
+            const rect = this.getBoundingClientRect();
+            const backgroundImage = getComputedStyle(this).backgroundImage;
+            
+            zoomContainer.style.backgroundImage = backgroundImage;
+            zoomContainer.style.display = 'block';
+            zoomContainer.style.left = (rect.right + 20) + 'px';
+            zoomContainer.style.top = (rect.top - 96) + 'px';
+        });
+        
+        avatar.addEventListener('mouseleave', function() {
+            zoomContainer.style.display = 'none';
+        });
+    });
+});
 
 // 按 ESC 键关闭预览
 document.addEventListener('keydown', function(e) {

@@ -152,20 +152,53 @@ class SKUListView(LoginRequiredMixin, ListView):
             ) | queryset.filter(
                 sku_code__icontains=search_query
             )
+
+        # 获取筛选参数
+        selected_color = self.request.GET.get('color', '')
+        selected_material = self.request.GET.get('material', '')
+        selected_plating = self.request.GET.get('plating', '')
+        
+        # 应用筛选
+        if selected_color:
+            queryset = queryset.filter(color=selected_color)
+        if selected_material:
+            queryset = queryset.filter(material=selected_material)
+        if selected_plating:
+            queryset = queryset.filter(plating_process=selected_plating)
+        
         return queryset.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['search_query'] = self.request.GET.get('search', '')
-        # 添加类目列表到上下文，只包含已有 SKU 的类目
-        context['categories'] = Category.objects.filter(
-            spus__skus__isnull=False  # 通过 SPU 和 SKU 的关联关系筛选
+        
+        # 获取所有不重复的选项
+        colors = SKU.objects.values_list('color', flat=True).distinct().order_by('color')
+        materials = SKU.objects.values_list('material', flat=True).distinct().order_by('material')
+        platings = SKU.objects.values_list('plating_process', flat=True).distinct().order_by('plating_process')
+        
+        # 添加类目列表到上下文
+        categories = Category.objects.filter(
+            spus__skus__isnull=False
         ).distinct().order_by('category_name_en')
-        # 添加当前选中的类目ID
+        
+        # 获取当前选中的类目ID
         try:
-            context['category_id'] = int(self.request.GET.get('category', ''))
+            category_id = int(self.request.GET.get('category', ''))
         except (ValueError, TypeError):
-            context['category_id'] = None
+            category_id = None
+            
+        context.update({
+            'categories': categories,
+            'colors': colors,
+            'materials': materials,
+            'platings': platings,
+            'category_id': category_id,
+            'selected_color': self.request.GET.get('color', ''),
+            'selected_material': self.request.GET.get('material', ''),
+            'selected_plating': self.request.GET.get('plating', ''),
+            'search_query': self.request.GET.get('search', ''),
+        })
+        
         return context
 
 class SKUUpdateView(LoginRequiredMixin, UpdateView):
