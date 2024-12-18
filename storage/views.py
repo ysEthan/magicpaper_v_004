@@ -1,3 +1,26 @@
-from django.shortcuts import render
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from .models import Stock
 
-# Create your views here.
+class StockListView(ListView):
+    model = Stock
+    template_name = 'storage/stock_list.html'
+    context_object_name = 'stocks'
+
+class StockDetailView(DetailView):
+    model = Stock
+    template_name = 'storage/stock_detail.html'
+
+class StockCreateView(CreateView):
+    model = Stock
+    template_name = 'storage/stock_form.html'
+    fields = ['stock_num', 'warehouse', 'avg_cost', 'sku']
+
+class StockUpdateView(UpdateView):
+    model = Stock
+    template_name = 'storage/stock_form.html'
+    fields = ['stock_num', 'warehouse', 'avg_cost', 'sku']
+
+class StockDeleteView(DeleteView):
+    model = Stock
+    success_url = reverse_lazy('storage:stock-list')

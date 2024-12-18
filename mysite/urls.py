@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include('page.urls')),
     path('muggle/', include('muggle.urls')),
     path('gallery/', include('gallery.urls')),
+    path('storage/', include('storage.urls')),
 ]
 
 if settings.DEBUG:

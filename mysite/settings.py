@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'page',
     'muggle',
     'gallery',
+    'storage.apps.StorageConfig',
 ]
 
 MIDDLEWARE = [
