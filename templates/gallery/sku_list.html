@@ -40,6 +40,15 @@
     min-width: 60px;
     padding-right: 30px;
 }
+
+.table.table-sm td {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.d-flex.flex-column.gap-1 {
+    gap: 0.3rem !important;
+}
 </style>
 {% endblock %}
 
@@ -78,7 +87,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <form method="get" class="row g-3" id="searchForm">
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <select class="form-select" name="category" onchange="this.form.submit()">
                         <option value="">-- 按类目筛选 --</option>
                         {% for category in categories %}
@@ -88,7 +97,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <select class="form-select" name="color" onchange="this.form.submit()">
                         <option value="">-- 按颜色筛选 --</option>
                         {% for color in colors %}
@@ -98,7 +107,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <select class="form-select" name="material" onchange="this.form.submit()">
                         <option value="">-- 按材质筛选 --</option>
                         {% for material in materials %}
@@ -108,7 +117,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <select class="form-select" name="plating" onchange="this.form.submit()">
                         <option value="">-- 按电镀筛选 --</option>
                         {% for plating in platings %}
@@ -131,7 +140,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="col-md-6"><!-- 空白占位 --></div>
+                <div class="col-md-2"><!-- 空白占位 --></div>
             </form>
         </div>
     </div>
@@ -139,7 +148,7 @@
     <!-- SKU list -->
     <div class="card">
         <div class="table-responsive">
-            <table class="table table-vcenter card-table">
+            <table class="table table-vcenter card-table table-sm">
                 <thead>
                     <tr>
                         <th style="width: 50px">图片</th>

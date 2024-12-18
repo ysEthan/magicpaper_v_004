@@ -40,7 +40,7 @@ class ProductSync:
         
         if not start_time:
             # 默认同步最近7天的数据
-            start_time = (datetime.now() - timedelta(days=14)).strftime('%Y-%m-%d %H:%M:%S')
+            start_time = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
         if not end_time:
             end_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -79,7 +79,7 @@ class ProductSync:
             synced_count = self._process_products(data['data'])
 
             # 如果还有下一页，递归处理
-            if current_page < max_page and current_page <8 :
+            if current_page < max_page :
                 time.sleep(1)  # 避免请求过快
                 next_count = self.sync_products(start_time, end_time, page + 1)
                 synced_count += next_count
